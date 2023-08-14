@@ -189,8 +189,8 @@ if __name__ == '__main__':
         print("Set New Cookie: {}".format(args.new_cookie))
     if args.original_cookie:
         print("Set Original Cookie: {}".format(args.original_cookie))
-    # 设置响应对比的基准
 
+    # todo: 通过计算相似度来比较响应重复
     urls = find_by_url(args.url)
     result = check_urls_auth(urls)
     # format_print(result)
