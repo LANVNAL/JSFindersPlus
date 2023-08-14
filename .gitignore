@@ -10,6 +10,7 @@ __pycache__/
 out/
 detect_broken_access.py
 test.py
+.DS_Store
 
 
 # Distribution / packaging

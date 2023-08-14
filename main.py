@@ -8,7 +8,7 @@ import requests
 import urllib3
 
 import config
-from JSFinder import find_by_url, giveresult
+from JSFinder import find_by_url, find_subdomain
 from Utils import extract_ip_or_url
 
 
@@ -111,13 +111,44 @@ def format_print(result):
 
 
 def make_table_row(data, is_duplicate):
+    '''
+    对于需要标红了内容，制作html代码
+    :param data: 数据
+    :param is_duplicate: 是否重复
+    :return:
+    '''
     row_html = '<tr style="color: red">' if is_duplicate else '<tr>'
     for item in data:
         row_html += f'<td>{html.escape(str(item))}</td>'
     row_html += '</tr>'
     return row_html
 
+
+def make_subdomain_out_result(urls):
+    '''
+    获取子域名结果，输出格式化的html内容
+    :param urls:
+    :return:
+    '''
+    out_html = ""
+    original_url = args.url
+    subdomains = find_subdomain(urls,original_url)
+    subdomain_count = len(subdomains)
+    out_html += f'<h2>Subdomains: 数量 {subdomain_count} 个</h2>'
+    out_html += "<ol>"
+    if subdomain_count != 0:
+        for subdomain in  subdomains:
+            out_html += f"<li>{subdomain}</li>"
+    out_html += "</ol>"
+    return out_html
+
+
 def save_result(result):
+    '''
+    保存结果到html，格式化为美观到输出样式
+    :param result:
+    :return:
+    '''
     # 构造 HTML 文件的头部和尾部信息
     html_head = '<html><head><title>Domain</title></head><body>'
     html_tail = '</body></html>'
@@ -135,6 +166,10 @@ def save_result(result):
         for url, (status_code, content_length, is_duplicate) in sorted(group, key=lambda x: x[0]):
             output_html += make_table_row((url, status_code, content_length, is_duplicate), is_duplicate == '否')
         output_html += table_tail
+
+    # 添加subdomain结果到html内容
+    subdomains_out = make_subdomain_out_result(result.keys())
+    output_html += subdomains_out
 
     # 添加 HTML 文件尾部信息，将结果输出到文件中
     output_html += html_tail
@@ -155,7 +190,6 @@ if __name__ == '__main__':
     if args.original_cookie:
         print("Set Original Cookie: {}".format(args.original_cookie))
     # 设置响应对比的基准
-    # todo: 设置两组cookie，进行对比用
 
     urls = find_by_url(args.url)
     result = check_urls_auth(urls)
@@ -163,4 +197,4 @@ if __name__ == '__main__':
     # print(urls)
     save_result(result)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
