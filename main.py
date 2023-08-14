@@ -3,13 +3,13 @@ import html
 import os
 import sys
 from itertools import groupby
-
 import requests
 import urllib3
 
 import config
 from JSFinder import find_by_url, find_subdomain
 from Utils import extract_ip_or_url
+from detect_sensitive_info import detect_sensitive_data
 
 
 normal_rsp = ""
@@ -143,7 +143,37 @@ def make_subdomain_out_result(urls):
     return out_html
 
 
-def save_result(result):
+def collect_sensitive_info(script_array):
+    all_info = {}
+    for url in script_array:
+        js_data = script_array[url]
+        if js_data is None:
+            continue
+        sensitive_data = detect_sensitive_data(js_data)
+        if sensitive_data:
+            # sd = []
+            # for data_type, data in sensitive_data.items():
+            #     sd.append({data_type:data})
+            all_info[url] = sensitive_data
+    return all_info
+
+
+def make_sensitive_info_out_result(sensitive_result):
+    out_html = ""
+    out_html += f'<h2>敏感信息：</h2>'
+    for url in sensitive_result:
+        out_html += f'<h3>url：{url}</h3>'
+        sensitive_data = sensitive_result[url]
+        # 构造表格的表头信息
+        out_html += '<table><tr><th>类型</th><th>数据</th></tr>'
+        for data_type, data in sensitive_data.items():
+            out_html += f'<tr><td>{data_type}</td><td>{data}</td></tr>'
+        out_html += '</table>'
+    return out_html
+
+
+
+def save_result(result,sensitive_result):
     '''
     保存结果到html，格式化为美观到输出样式
     :param result:
@@ -171,6 +201,9 @@ def save_result(result):
     subdomains_out = make_subdomain_out_result(result.keys())
     output_html += subdomains_out
 
+    sensitive_infos = make_sensitive_info_out_result(sensitive_result)
+    output_html += sensitive_infos
+
     # 添加 HTML 文件尾部信息，将结果输出到文件中
     output_html += html_tail
     domain = extract_ip_or_url(args.url)
@@ -191,10 +224,11 @@ if __name__ == '__main__':
         print("Set Original Cookie: {}".format(args.original_cookie))
 
     # todo: 通过计算相似度来比较响应重复
-    urls = find_by_url(args.url)
+    urls, script_array = find_by_url(args.url)
     result = check_urls_auth(urls)
+    sensitive_result = collect_sensitive_info(script_array)
     # format_print(result)
     # print(urls)
-    save_result(result)
+    save_result(result,sensitive_result)
 
 

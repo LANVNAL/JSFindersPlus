@@ -128,7 +128,6 @@ def find_by_url(url, js=False):
                 purl = process_url(url, script_src)
                 script_array[purl] = Extract_html(purl)
         script_array[url] = script_temp
-        # print(script_array.keys())
         allurls = []
         for script in script_array:
             # print(script)
@@ -150,7 +149,7 @@ def find_by_url(url, js=False):
             if miandomain in subdomain or subdomain.strip() == "":
                 if singerurl.strip() not in result:
                     result.append(singerurl)
-        return result
+        return result,script_array
     return sorted(set(extract_URL(Extract_html(url)))) or None
 
 
@@ -191,7 +190,7 @@ def find_by_url_deep(url):
     urls = []
     i = len(links)
     for link in links:
-        temp_urls = find_by_url(link)
+        temp_urls, _ = find_by_url(link)
         if temp_urls == None: continue
         print("Remaining " + str(i) + " | Find " + str(len(temp_urls)) + " URL in " + link)
         for temp_url in temp_urls:
@@ -210,9 +209,9 @@ def find_by_file(file_path, js=False):
     i = len(links)
     for link in links:
         if js == False:
-            temp_urls = find_by_url(link)
+            temp_urls, _ = find_by_url(link)
         else:
-            temp_urls = find_by_url(link, js=True)
+            temp_urls, _ = find_by_url(link, js=True)
         if temp_urls == None: continue
         print(str(i) + " Find " + str(len(temp_urls)) + " URL in " + link)
         for temp_url in temp_urls:
@@ -253,10 +252,10 @@ if __name__ == "__main__":
     args = parse_args()
     if args.file == None:
         if args.deep is not True:
-            urls = find_by_url(args.url)
+            urls, _ = find_by_url(args.url)
             giveresult(urls, args.url)
         else:
-            urls = find_by_url_deep(args.url)
+            urls, _ = find_by_url_deep(args.url)
             giveresult(urls, args.url)
     else:
         if args.js is not True:
