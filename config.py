@@ -7,3 +7,5 @@ static_resources_type = [".js", ".css",".png", ".jpg", ".jpeg", ".ico", ".gif", 
 # 保存路径
 Report_output_path = "./out/"
 
+# JS文件不扫描
+js_pass = ["jquery"]

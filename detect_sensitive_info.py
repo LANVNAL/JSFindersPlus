@@ -1,5 +1,6 @@
 # 检测js文件中的敏感信息
 # todo: 优化匹配，中文
+# todo: 跳过一些默认js的匹配
 
 import re
 
